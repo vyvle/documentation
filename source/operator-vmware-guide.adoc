@@ -521,6 +521,18 @@ When using VMware as a source, there are several ways to handle the flavor for t
 ** Force usage of an existing flavor: `flavor_uuid: <your_flavor_uuid>`
 ** Useful to define custom properties for host aggregation or targeted placement.
 
+=== Host Aggregates
+
+Host aggregates are a mechanism for partitioning hosts in an OpenStack cloud, or a region of an OpenStack cloud, based on arbitrary characteristics.
+More information on how to configure the host aggregates in OpenStack can be found here: https://docs.openstack.org/nova/latest/admin/aggregates.html
+
+Once you have set up the host aggregates you can now create the flavor with the `openstack flavor create` command.
+Once the flavor is created, specify one or more key-value pairs that match the key-value pairs on the host aggregates with scope `aggregate_instance_extra_specs`.
+
+When you have created in your OpenStack destination cloud the flavor with the correct property, you can now specify to os-migrate the variable:
+
+`flavor_uuid: <your_flavor_uuid>`
+
 === Encryption
 
 If you use encryption with our VMware virtual machine (VMware encryption or encrypted
