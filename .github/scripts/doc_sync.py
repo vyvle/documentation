@@ -253,19 +253,6 @@ def create_doc_pr(gh_client: Github, doc_repo, source_repo_name: str, pr_number:
 # ---------------------------------------------------------------------------
 
 
-def _make_gemini_model() -> GenerativeModel:
-    """Initialise Vertex AI and return a Gemini GenerativeModel.
-
-    GCP credentials are expected to be configured via GOOGLE_APPLICATION_CREDENTIALS
-    (set by the workflow's 'Set up GCP credentials' step).
-    """
-    project = (os.getenv("GOOGLE_CLOUD_PROJECT") or "").strip()
-    region = (os.getenv("GOOGLE_CLOUD_REGION") or "us-central1").strip()
-    if not project:
-        raise RuntimeError("GOOGLE_CLOUD_PROJECT env var is required.")
-    vertexai.init(project=project, location=region)
-    return GenerativeModel(GEMINI_MODEL)
-
 
 def main():
     gh_client = Github(os.environ["OSM_GITHUB_TOKEN"])
