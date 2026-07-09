@@ -802,6 +802,33 @@ Common causes:
 2. vCenter FQDN not resolvable.
 3. Malformed `nbdkit` command (invalid characters or parameters).
 
+=== TLS Certificate Verification Errors
+
+If the VMware vCenter or the OpenStack API endpoint uses a self-signed certificate or one issued by an authority not trusted by the conversion host, the migration will fail with an error similar to:
+
+```
+Failed to initiate Vmware client: Post "https://vcenter.example.com/sdk": tls: failed to verify certificate: x509: certificate signed by unknown authority
+```
+
+To bypass certificate verification, set one or both of the following variables:
+
+[source,yaml]
+----
+# Skip TLS verification for the VMware vCenter connection:
+import_workloads_vmware_insecure: true
+
+# Skip TLS verification for the OpenStack API connection:
+import_workloads_openstack_insecure: true
+----
+
+Both variables default to `false`. Set only the one that applies to your environment, or both if needed.
+
+[WARNING]
+====
+Disabling certificate verification removes protection against man-in-the-middle attacks.
+Only use these options in lab environments or on networks you fully control.
+====
+
 === Manual debug procedure
 
 You can replay the commands manually for troubleshooting.
