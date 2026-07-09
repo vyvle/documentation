@@ -1,0 +1,65 @@
+name: Sync Documentation from Source PRs
+
+on:
+  schedule:
+    - cron: '0 8 * * *'
+  workflow_dispatch:
+    inputs:
+      repos:
+        description: 'Source repos to check (comma-separated)'
+        default: 'vmware-migration-kit,os-migrate'
+        type: string
+      days_back:
+        description: 'How many days back to look for PRs'
+        default: '1'
+        type: string
+      dry_run:
+        description: 'Dry run — analyze only, do not create PRs'
+        default: true
+        type: boolean
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: doc-sync
+  cancel-in-progress: false
+
+jobs:
+  sync-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout documentation repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install "anthropic[vertex]" PyGithub
+
+      - name: Sync documentation from source PRs
+        env:
+          CLAUDE_CODE_USE_VERTEX: 1
+          GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+          ANTHROPIC_VERTEX_PROJECT_ID: ${{ secrets.ANTHROPIC_VERTEX_PROJECT_ID }}
+          OSM_GITHUB_TOKEN: ${{ secrets.OSM_GITHUB_TOKEN }}
+          SOURCE_ORG: os-migrate
+          TARGET_REPOS: ${{ inputs.repos || 'vmware-migration-kit,os-migrate' }}
+          DAYS_BACK: ${{ inputs.days_back || '1' }}
+          DRY_RUN: ${{ inputs.dry_run || 'false' }}
+          DOCS_REPO: ${{ github.repository }}
+        run: python .github/scripts/doc_sync.py
+
+      - name: Upload analysis report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: doc-sync-report
+          path: doc-sync-report.json
+          if-no-files-found: ignore
+          retention-days: 7
