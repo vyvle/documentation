@@ -15,7 +15,7 @@ on:
         type: string
       dry_run:
         description: 'Dry run — analyze only, do not create PRs'
-        default: false
+        default: true
         type: boolean
 
 permissions:
